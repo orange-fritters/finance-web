@@ -1,20 +1,36 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var express = require("express");
+var path = require("path");
+var axios = require("axios");
+const cors = require("cors");
+const session = require("express-session");
+// const mongoose = require("mongoose");
 
 var app = express();
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors({ credentials: true, origin: "http://10.0.2.2:3000" }));
+app.use(express.static(path.join(__dirname, "../frontend/build")));
+app.use(
+  session({
+    secret: "MySecret",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.get("/api/home-predict", (req, res) => {
+  axios
+    .get("http://0.0.0.0:8001/home-predictions")
+    .then((response) => res.json(response.data))
+    .catch((error) => res.json({ error: error.message }));
+});
+
+app.get("*", function (req, res) {
+  res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
+});
+
+app.listen(3000, "0.0.0.0", () => {
+  console.log("Server started on port 3000");
+  console.log(path.join(__dirname, "../frontend/build/index.html"));
+});
 
 module.exports = app;

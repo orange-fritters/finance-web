@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import Logo from "./Logo";
 import Button from "./Button";
+import { useNavigate } from "react-router-dom";
 
 const SideBarContainer = styled.div`
   display: grid;
@@ -44,20 +45,42 @@ const BrandContainer = styled.div`
 `;
 
 const SideBar = () => {
+  const navigate = useNavigate();
+
   return (
     <SideBarContainer>
       <LogoContainer>
         <Logo />
       </LogoContainer>
       <ButtonContainer>
-        <Button text="Home" />
+        <Button
+          text="Home"
+          onClick={() => {
+            navigate("/");
+          }}
+        />
         <Button text="About" />
         <Button text="Contact" />
       </ButtonContainer>
       <ButtonContainer>
-        <Button text="Button1" />
-        <Button text="Button2" />
-        <Button text="Button2" />
+        <Button
+          text="Portfolio"
+          onClick={() => {
+            navigate("/portfolio");
+          }}
+        />
+        <Button
+          text="Sentiment"
+          onClick={() => {
+            navigate("/sentiment");
+          }}
+        />
+        <Button
+          text="Prediction"
+          onClick={() => {
+            navigate("/prediction");
+          }}
+        />
       </ButtonContainer>
       <BrandContainer>Bitamin Conference</BrandContainer>
     </SideBarContainer>

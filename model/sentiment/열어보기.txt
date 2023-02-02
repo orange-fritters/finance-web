@@ -1,0 +1,18 @@
+# 불러올 데이터
+# sent_df = pd.read_csv("2023-01-01_2023-01-31_BTC_sentiment.csv", index_col=0)
+# date_df = pd.read_csv("2023-01-01_2023-01-31_BTC.csv", index_col=0)
+
+# model1 = Model(sent_df)
+
+# model1.sentiment_bar()  # 1번
+['Index: 0, all: 251275',
+ 'Index: 1, positive: 17054',
+ 'Index: 2, negative: 234221']
+
+# model1.sentiment_donut()  # 2번
+['index: 0, percent: 93.21%', 'index: 1, orient: negative']
+
+
+# model2 = Model(date_df)
+# model2.tweets_plot('Hour')  # 3번
+{그림이나온다}

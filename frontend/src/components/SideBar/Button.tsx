@@ -16,7 +16,7 @@ export const SideBarButton = styled.button`
   // hover effect
   &:hover {
     font-weight: 900;
-    font-size: xx-large;
+    font-size: x-large;
   }
 `;
 

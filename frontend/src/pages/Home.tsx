@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import Contents from "../components/Contents/Contents";
+import Contents from "../components/Home/Contents";
 import SideBar from "../components/SideBar/SideBar";
 
 const HomeContainer = styled.div`
