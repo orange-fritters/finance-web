@@ -26,6 +26,3 @@ class Model:
   def sentiment(self, input_data):
     return self.model.predict_proba(input_data)
 
-if __name__ == "__main__":
-  model = Model()
-  print(model.prediction(10))

@@ -7,54 +7,12 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
+import { useState } from "react";
+import axios from "axios";
+import { useEffect } from "react";
 
-const data = [
-  {
-    name: "Page A",
-    uv: 4000,
-    pv: 2400,
-    amt: 2400,
-  },
-  {
-    name: "Page B",
-    uv: 3000,
-    pv: 1398,
-    amt: 2210,
-  },
-  {
-    name: "Page C",
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: "Page D",
-    uv: 2780,
-    pv: 3908,
-    amt: 2000,
-  },
-  {
-    name: "Page E",
-    uv: 1890,
-    pv: 4800,
-    amt: 2181,
-  },
-  {
-    name: "Page F",
-    uv: 2390,
-    pv: 3800,
-    amt: 2500,
-  },
-  {
-    name: "Page G",
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
-  },
-];
 const TopGraphContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -62,14 +20,43 @@ const TopGraphContainer = styled.div`
   justify-content: center;
 `;
 
-const TopGraph = () => {
+interface SingleProp {
+  index: number;
+  time: string;
+  value: number;
+}
+
+interface GraphProp {
+  refresh: boolean;
+}
+
+const TopGraph = ({ refresh }: GraphProp) => {
+  const [portfolioValue, setPortfolioValue] = useState<SingleProp[]>([
+    { index: 0, time: "", value: 0 },
+  ]);
+
+  const searchAPI = () => {
+    axios
+      .get("http://0.0.0.0:8001/portfolio-value-over-time")
+      .then((res) => {
+        setPortfolioValue(JSON.parse(res.data));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    searchAPI();
+  }, [refresh]);
+
   return (
     <TopGraphContainer>
       <ResponsiveContainer width="80%" height="80%">
         <LineChart
           width={500}
           height={300}
-          data={data}
+          data={portfolioValue}
           margin={{
             top: 5,
             right: 30,
@@ -77,13 +64,12 @@ const TopGraph = () => {
             bottom: 5,
           }}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
+          <XAxis dataKey="time" angle={360 - 45} />
+          <YAxis dataKey="value" domain={["dataMin", "dataMax"]} />
           <Tooltip />
-          <Legend />
           <Line
             type="monotone"
-            dataKey="pv"
+            dataKey="value"
             stroke="#8884d8"
             activeDot={{ r: 8 }}
           />

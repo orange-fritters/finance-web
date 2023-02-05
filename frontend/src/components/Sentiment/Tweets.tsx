@@ -11,6 +11,8 @@ import {
   Label,
   LabelList,
 } from "recharts";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const ChartContainer = styled(ContainerComponentContainer)`
   padding-left: 4%;
@@ -19,6 +21,8 @@ const ChartContainer = styled(ContainerComponentContainer)`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  overflow: visible;
 `;
 
 const TitleContainer = styled.div`
@@ -30,29 +34,39 @@ const TitleContainer = styled.div`
   padding-left: 9%;
 `;
 
-const data = [
-  {
-    subject: "GOOD",
-    value: 7.21,
-  },
-  {
-    subject: "BAD",
-    value: 6.47,
-  },
-];
-// declare type Props  of rencderCustomizedLabel
+interface dataProp {
+  subject: string;
+  value: number;
+}
 
 const Tweets = () => {
   const colors = ["#758CBB", "#EA5E4D"];
+  const [data, setData] = useState<dataProp[]>([]);
+
+  const searchApi = () => {
+    axios
+      .get("/api/sentiment-bar")
+      .then((response) => {
+        setData(JSON.parse(response.data));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  useEffect(() => {
+    searchApi();
+  }, []);
+
   return (
     <ChartContainer type="small" loc="left">
       <TitleContainer>Tweets</TitleContainer>
-      <ResponsiveContainer width="100%" height="80%">
+      <ResponsiveContainer width="80%" height="80%">
         <BarChart
           data={data}
           layout="vertical"
-          margin={{ top: 50, bottom: 50, left: 5, right: 20 }}>
-          <XAxis type="number" hide={true} />
+          margin={{ top: 50, bottom: 50, left: 0, right: 20 }}>
+          <XAxis type="number" hide={true} scale="sqrt" />
           <YAxis
             dataKey="subject"
             type="category"
@@ -61,7 +75,7 @@ const Tweets = () => {
           />
           <Tooltip />
           <Label position="right" offset={0} />
-          <Bar dataKey="value" radius={[10, 10, 10, 10]} barSize={30}>
+          <Bar dataKey="value" radius={[10, 10, 10, 10]} barSize={40}>
             {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={colors[index]} />
             ))}

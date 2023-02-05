@@ -8,6 +8,8 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 const GraphContainer = styled.div`
   display: flex;
@@ -19,62 +21,44 @@ const GraphContainer = styled.div`
   height: 100%;
 `;
 
+interface DataProp {
+  index: number;
+  x: number;
+  y: number;
+}
+
 const RiskDistribution = () => {
-  const data = [
-    {
-      name: "Page A",
-      uv: 4000,
-      pv: 2400,
-      amt: 2400,
-    },
-    {
-      name: "Page B",
-      uv: 3000,
-      pv: 1398,
-      amt: 2210,
-    },
-    {
-      name: "Page C",
-      uv: 2000,
-      pv: 9800,
-      amt: 2290,
-    },
-    {
-      name: "Page D",
-      uv: 2780,
-      pv: 3908,
-      amt: 2000,
-    },
-    {
-      name: "Page E",
-      uv: 1890,
-      pv: 4800,
-      amt: 2181,
-    },
-    {
-      name: "Page F",
-      uv: 2390,
-      pv: 3800,
-      amt: 2500,
-    },
-    {
-      name: "Page G",
-      uv: 3490,
-      pv: 4300,
-      amt: 2100,
-    },
-  ];
+  const [data, setData] = useState<DataProp[]>([]);
+  const searchAPI = () => {
+    axios
+      .get("http://0.0.0.0:8001/risk-distribution")
+      .then((res) => {
+        setData(JSON.parse(res.data)[0].distribution);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    searchAPI();
+  }, []);
 
   return (
     <GraphContainer>
       <ResponsiveContainer width="80%" height="80%">
         <AreaChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
+          <XAxis dataKey="x" />
           <YAxis />
-          <Area type="monotone" dataKey="uv" stroke="#8884d8" fill="#8884d8" />
-          <ReferenceLine x="Page C" stroke="red" label="Max" />
-          <ReferenceLine x="Page B" stroke="blue" label="Max" />
+          <ReferenceLine x={-0.1} stroke="red" label="-0.1" />
+          <ReferenceLine
+            x={-0.05}
+            stroke="red"
+            label="-0.05"
+            alwaysShow={true}
+          />
+          <Area type="monotone" dataKey="y" stroke="#8884d8" fill="#8884d8" />
         </AreaChart>
       </ResponsiveContainer>
     </GraphContainer>

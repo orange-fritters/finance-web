@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import RiskDistribution from "./More/RiskDistribution";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Container = styled.div`
   display: flex;
@@ -64,15 +65,15 @@ const ReturnButton = styled.button`
 `;
 
 interface MetricsProps {
-  UaR: number;
+  VaR: number;
   ES: number;
 }
 
-const Metrics = ({ UaR, ES }: MetricsProps) => {
+const Metrics = ({ VaR, ES }: MetricsProps) => {
   return (
     <MetricsContainer>
-      <h1>UaR</h1>
-      <h2>{UaR}</h2>
+      <h1>VaR</h1>
+      <h2>{VaR}</h2>
       <h1>ES</h1>
       <h2>{ES}</h2>
     </MetricsContainer>
@@ -81,12 +82,37 @@ const Metrics = ({ UaR, ES }: MetricsProps) => {
 
 const MoreContents = () => {
   const nav = useNavigate();
+  const [ES, setES] = useState(0);
+  const [VaR, setVaR] = useState(0);
+
+  const searchAPI = () => {
+    axios
+      .get("http://0.0.0.0:8001/risk-distribution")
+      .then((res) => {
+        console.log(res.data);
+        setES(JSON.parse(res.data)[0].target[0].ES.toFixed(4));
+        setVaR(JSON.parse(res.data)[0].target[0].VaR.toFixed(4));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    searchAPI();
+  }, []);
+
+  useEffect(() => {
+    console.log(VaR);
+    console.log(ES);
+  }, [VaR, ES]);
+
   return (
     <Container>
       <ContentsContainer>
         <h1>Risk Distribution</h1>
         <RiskDistribution />
-        <Metrics UaR={100} ES={200} />
+        <Metrics VaR={VaR} ES={ES} />
         <ReturnButton onClick={() => nav("/portfolio")}>Return</ReturnButton>
       </ContentsContainer>
     </Container>

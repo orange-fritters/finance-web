@@ -1,7 +1,7 @@
 // 1. Efficient Frontier : Scatter Plot
 // 2. Daily Return graph : Simple Line Graph
 // 3. Return Histogram : Histogram
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import {
   ScatterChart,
@@ -14,10 +14,12 @@ import {
   LineChart,
   Line,
   Legend,
-  BarChart,
   Bar,
+  ZAxis,
+  ComposedChart,
 } from "recharts";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Container = styled.div`
   display: grid;
@@ -84,92 +86,100 @@ const MoreButton = styled.button`
   align-self: center;
   justify-self: center;
   margin-bottom: 3%;
-  }}
+
+  &:hover {
+    background-color: #5c6bc0;
+  }
+
+  &:active {
+    margin-top: 2px;
+    margin-left: 2px;
+  }
 `;
 
-const ScatterPlot = () => {
-  const data = [
-    { x: 100, y: 200, z: 200 },
-    { x: 120, y: 100, z: 260 },
-    { x: 170, y: 300, z: 400 },
-    { x: 140, y: 250, z: 280 },
-    { x: 150, y: 400, z: 500 },
-    { x: 110, y: 280, z: 200 },
-  ];
+interface Prop {
+  refresh: boolean;
+}
+
+const ScatterPlot = ({ refresh }: Prop) => {
+  const [data, setData] = useState([]);
+
+  const searchAPI = () => {
+    axios
+      .get("http://0.0.0.0:8001/scatter-plot")
+      .then((res) => {
+        setData(JSON.parse(res.data));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    searchAPI();
+  }, [refresh]);
 
   return (
     <GraphContainer>
       <ResponsiveContainer width="100%" height="100%">
         <ScatterChart>
           <CartesianGrid />
-          <XAxis type="number" dataKey="x" name="stature" unit="cm" />
-          <YAxis type="number" dataKey="y" name="weight" unit="kg" />
+          <XAxis
+            type="number"
+            dataKey="std"
+            name="variance"
+            domain={["dataMin", "dataMax"]}
+          />
+          <YAxis
+            type="number"
+            dataKey="mean"
+            name="return"
+            domain={["dataMin", "dataMax"]}
+          />
+          <ZAxis type="number" dataKey="sharpe" name="sharpe" />
           <Tooltip cursor={{ strokeDasharray: "3 3" }} />
-          <Scatter name="A school" data={data} fill="#8884d8" />
+          <Legend />
+          <Scatter
+            name="Sharpe Return"
+            data={data}
+            fill="#8884d8"
+            shape="circle"
+          />
         </ScatterChart>
       </ResponsiveContainer>
     </GraphContainer>
   );
 };
 
-const DailyReturn = () => {
-  const data = [
-    {
-      name: "Page A",
-      uv: 4000,
-      pv: 2400,
-      amt: 2400,
-    },
-    {
-      name: "Page B",
-      uv: 3000,
-      pv: 1398,
-      amt: 2210,
-    },
-    {
-      name: "Page C",
-      uv: 2000,
-      pv: 9800,
-      amt: 2290,
-    },
-    {
-      name: "Page D",
-      uv: 2780,
-      pv: 3908,
-      amt: 2000,
-    },
-    {
-      name: "Page E",
-      uv: 1890,
-      pv: 4800,
-      amt: 2181,
-    },
-    {
-      name: "Page F",
-      uv: 2390,
-      pv: 3800,
-      amt: 2500,
-    },
-    {
-      name: "Page G",
-      uv: 3490,
-      pv: 4300,
-      amt: 2100,
-    },
-  ];
+const DailyReturn = ({ refresh }: Prop) => {
+  const [data, setData] = useState([]);
+
+  const searchAPI = () => {
+    axios
+      .get("http://0.0.0.0:8001/daily-return")
+      .then((res) => {
+        setData(JSON.parse(res.data)[0]);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    searchAPI();
+  }, [refresh]);
 
   return (
     <GraphContainer>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
+          <XAxis dataKey="time" angle={360 - 45} />
           <YAxis />
           <Tooltip />
-          <Legend />
           <Line
             type="monotone"
-            dataKey="pv"
+            dataKey="return"
             stroke="#8884d8"
             activeDot={{ r: 8 }}
           />
@@ -179,56 +189,29 @@ const DailyReturn = () => {
   );
 };
 
-const ReturnHist = () => {
-  const data = [
-    {
-      name: "Page A",
-      uv: 4000,
-      pv: 2400,
-      amt: 2400,
-    },
-    {
-      name: "Page B",
-      uv: 3000,
-      pv: 1398,
-      amt: 2210,
-    },
-    {
-      name: "Page C",
-      uv: 2000,
-      pv: 9800,
-      amt: 2290,
-    },
-    {
-      name: "Page D",
-      uv: 2780,
-      pv: 3908,
-      amt: 2000,
-    },
-    {
-      name: "Page E",
-      uv: 1890,
-      pv: 4800,
-      amt: 2181,
-    },
-    {
-      name: "Page F",
-      uv: 2390,
-      pv: 3800,
-      amt: 2500,
-    },
-    {
-      name: "Page G",
-      uv: 3490,
-      pv: 4300,
-      amt: 2100,
-    },
-  ];
+const ReturnHist = ({ refresh }: Prop) => {
+  const [data, setData] = useState([]);
+
+  const searchAPI = () => {
+    axios
+      .get("http://0.0.0.0:8001/return-hist")
+      .then((res) => {
+        console.log(JSON.parse(res.data)[0]);
+        setData(JSON.parse(res.data)[0]);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    searchAPI();
+  }, [refresh]);
 
   return (
     <GraphContainer>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart
+        <ComposedChart
           width={500}
           height={300}
           data={data}
@@ -239,19 +222,21 @@ const ReturnHist = () => {
             bottom: 5,
           }}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
+          <XAxis dataKey="start" name="Return" />
           <YAxis />
+          <Bar dataKey="frequency" name="Frequency" fill="#8884d8" />
           <Tooltip />
-          <Legend />
-          <Bar dataKey="pv" fill="#8884d8" />
-          <Bar dataKey="uv" fill="#82ca9d" />
-        </BarChart>
+        </ComposedChart>
       </ResponsiveContainer>
     </GraphContainer>
   );
 };
 
-const BottomGraph = () => {
+interface GraphProp {
+  refresh: boolean;
+}
+
+const BottomGraph = ({ refresh }: GraphProp) => {
   const [selectedComponent, setSelectedComponent] = useState("first");
   const nav = useNavigate();
 
@@ -262,9 +247,9 @@ const BottomGraph = () => {
         {selectedComponent === "second" && "Daily Return"}
         {selectedComponent === "third" && "Return Histogram"}
       </GraphTitle>
-      {selectedComponent === "first" && <ScatterPlot />}
-      {selectedComponent === "second" && <DailyReturn />}
-      {selectedComponent === "third" && <ReturnHist />}
+      {selectedComponent === "first" && <ScatterPlot refresh={refresh} />}
+      {selectedComponent === "second" && <DailyReturn refresh={refresh} />}
+      {selectedComponent === "third" && <ReturnHist refresh={refresh} />}
       <GraphButton loc="top" onClick={() => setSelectedComponent("first")}>
         Scatter Plot
       </GraphButton>

@@ -4,6 +4,7 @@ import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import React, { useEffect } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
+import axios from "axios";
 
 const SliderContainer = styled.div`
   display: grid;
@@ -51,8 +52,17 @@ const SingleSliderContainer = styled.div`
   gap: 10%;
   padding-bottom: 10px;
 `;
+const ButtonContainer = styled.div`
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr 1fr;
+  justify-content: center;
+  align-items: center;
+  gap: 1%;
+  padding-bottom: 10px;
+`;
 
-const AutoOptimzeButton = styled.button`
+const AutoOptimizeButton = styled.button`
   display: grid;
   grid-template-rows: 1fr;
   grid-template-columns: 1fr;
@@ -60,7 +70,8 @@ const AutoOptimzeButton = styled.button`
   justify-self: center;
   align-items: center;
   align-self: top;
-  width: 60%;
+  width: 85%;
+  margin-left: 10%;
   height: 70%;
   border-radius: 12px;
   background-color: #9bc474;
@@ -68,6 +79,29 @@ const AutoOptimzeButton = styled.button`
   font-size: 1.7rem;
   font-weight: 600;
   color: white;
+`;
+
+const SubmitButton = styled.button`
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr;
+  justify-content: center;
+  justify-self: center;
+  align-items: center;
+  align-self: top;
+  margin-right: 10%;
+  width: 85%;
+  height: 70%;
+  border-radius: 12px;
+  background-color: #8a9bc4;
+  border: none;
+  font-size: 1.7rem;
+  font-weight: 600;
+  color: white;
+
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 const TitleContainer2 = styled(TitleContainer)`
@@ -78,6 +112,7 @@ const TitleContainer2 = styled(TitleContainer)`
 
 interface TickersProps {
   tickers: string[];
+  handleRefresh: () => void;
 }
 
 interface TickerValues {
@@ -89,9 +124,15 @@ interface dataValues {
   value: number;
 }
 
-const ManualOptimize = ({ tickers }: TickersProps) => {
+interface PostData {
+  data: dataValues[];
+}
+
+const ManualOptimize = ({ tickers, handleRefresh }: TickersProps) => {
   const [sliderValues, setSliderValues] = React.useState<TickerValues>({});
   const [pieData, setPieData] = React.useState<dataValues[]>([]);
+  const [ratio, setRatio] = React.useState<dataValues[]>([]);
+  const [postData, setPostData] = React.useState<PostData>({ data: [] });
   const colors = [
     "#8884d8",
     "#82ca9d",
@@ -102,12 +143,23 @@ const ManualOptimize = ({ tickers }: TickersProps) => {
     "#ff00ff",
     "#000000",
   ];
+
+  const postAPI = () => {
+    axios
+      .post("http://0.0.0.0:8001/set-stocks", postData)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   useEffect(() => {
     let sum = 0;
     for (const key in sliderValues) {
       sum += sliderValues[key];
     }
-
     const data = [];
     for (const key in sliderValues) {
       data.push({
@@ -115,9 +167,26 @@ const ManualOptimize = ({ tickers }: TickersProps) => {
         value: Math.round((sliderValues[key] / sum) * 100),
       });
     }
-    console.log(data);
     setPieData(data);
+
+    const ratio = [];
+    for (const key in sliderValues) {
+      ratio.push({
+        name: key,
+        value: sliderValues[key] / sum,
+      });
+    }
+    setRatio(ratio);
   }, [sliderValues]);
+
+  useEffect(() => {
+    setPostData({ data: ratio });
+  }, [ratio]);
+
+  const handleSubmission = () => {
+    postAPI();
+    handleRefresh();
+  };
 
   return (
     <OptimizeContainer>
@@ -157,15 +226,18 @@ const ManualOptimize = ({ tickers }: TickersProps) => {
           <Legend layout="vertical" align="right" verticalAlign="middle" />
         </PieChart>
       </ResponsiveContainer>
-      <AutoOptimzeButton>Auto Optimize</AutoOptimzeButton>
+      <ButtonContainer>
+        <AutoOptimizeButton>Auto Optimize</AutoOptimizeButton>
+        <SubmitButton onClick={handleSubmission}>Submit</SubmitButton>
+      </ButtonContainer>
     </OptimizeContainer>
   );
 };
 
-const Optimize = ({ tickers }: TickersProps) => {
+const Optimize = ({ tickers, handleRefresh }: TickersProps) => {
   return (
     <Container>
-      <ManualOptimize tickers={tickers} />
+      <ManualOptimize tickers={tickers} handleRefresh={handleRefresh} />
     </Container>
   );
 };

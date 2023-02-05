@@ -24,6 +24,28 @@ app.get("/api/home-predict", (req, res) => {
     .catch((error) => res.json({ error: error.message }));
 });
 
+//* Sentiment Page API //
+app.get("/api/sentiment-historical/:id", (req, res) => {
+  axios
+    .get("http://0.0.0.0:8001/tweets-plot/" + req.params.id)
+    .then((response) => res.json(response.data))
+    .catch((error) => res.json({ error: error.message }));
+});
+
+app.get("/api/sentiment-bar", (req, res) => {
+  axios
+    .get("http://0.0.0.0:8001/sentiment-bar")
+    .then((response) => res.json(response.data))
+    .catch((error) => res.json({ error: error.message }));
+});
+
+app.get("/api/sentiment-pie", (req, res) => {
+  axios
+    .get("http://0.0.0.0:8001/sentiment-donut")
+    .then((response) => res.json(response.data))
+    .catch((error) => res.json({ error: error.message }));
+});
+
 app.get("*", function (req, res) {
   res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
 });

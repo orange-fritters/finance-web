@@ -21,12 +21,16 @@ const Container = styled.div`
 const TitleContainerGraph = styled(TitleContainer)`
   text-align: center;
 `;
-const Graphs = () => {
+
+interface GraphProp {
+  refresh: boolean;
+}
+const Graphs = ({ refresh }: GraphProp) => {
   return (
     <Container>
       <TitleContainerGraph>Portfolio Value Over Time</TitleContainerGraph>
-      <TopGraph />
-      <BottomGraph />
+      <TopGraph refresh={refresh} />
+      <BottomGraph refresh={refresh} />
     </Container>
   );
 };

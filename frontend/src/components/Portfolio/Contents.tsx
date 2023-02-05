@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import Graphs from "./Graphs";
 import CheckBox from "./Submission/CheckBox";
@@ -25,21 +25,26 @@ const ContentsContainer = styled.div`
 
 const Contents = () => {
   const [selectedTickers, setSelectedTickers] = React.useState<string[]>([]);
+  const [refresh, setRefresh] = React.useState<boolean>(false);
   const handleTickers = (tickers: string[]) => {
     setSelectedTickers(tickers);
   };
 
-  useEffect(() => {
-    console.log(selectedTickers);
-  }, [selectedTickers]);
+  const handleRefresh = () => {
+    setRefresh(!refresh);
+  };
+
+  // useEffect(() => {
+  //   console.log(selectedTickers);
+  // }, [selectedTickers]);
 
   return (
     <ContentsContainer>
       <Container>
         <CheckBox onStateChange={handleTickers} />
-        <Optimize tickers={selectedTickers} />
+        <Optimize tickers={selectedTickers} handleRefresh={handleRefresh} />
       </Container>
-      <Graphs />
+      <Graphs refresh={refresh} />
     </ContentsContainer>
   );
 };

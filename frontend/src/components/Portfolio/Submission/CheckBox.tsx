@@ -74,16 +74,7 @@ interface stateProps {
 }
 
 const CheckBox = ({ onStateChange }: stateProps) => {
-  const tickers = [
-    "AAPL",
-    "AMZN",
-    "GOOG",
-    "META",
-    "MSFT",
-    "NFLX",
-    "TSLA",
-    "BTC",
-  ];
+  const tickers = ["AAPL", "AMZN", "GOOG", "META", "MSFT", "NFLX", "TSLA"];
 
   const [selectedTickers, setSelectedTickers] = useState<string[]>([]);
   const ref = useRef<HTMLInputElement>(null);

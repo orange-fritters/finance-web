@@ -8,6 +8,8 @@ import {
   Legend,
   Label,
 } from "recharts";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 const ChartContainer = styled(ContainerComponentContainer)`
   padding-left: 4%;
@@ -27,14 +29,39 @@ const TitleContainer = styled.div`
   padding-left: 9%;
 `;
 
-const data = [
-  { name: "POSITIVE", value: 40 },
-  { name: "NEGATIVE", value: 60 },
-];
+interface dataProp {
+  name: string;
+  value: number;
+}
 
 const SentimentChart = () => {
   const colors = ["#758CBB", "#EA5E4D"];
-  const ratio = (data[0].value / (data[0].value + data[1].value)) * 100;
+  const [data, setData] = useState<dataProp[]>([]);
+  const [ratio, setRatio] = useState<number>(0);
+
+  const searchApi = () => {
+    axios
+      .get("/api/sentiment-pie")
+      .then((response) => {
+        console.log(JSON.parse(response.data));
+        setData(JSON.parse(response.data));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  useEffect(() => {
+    searchApi();
+  }, []);
+
+  useEffect(() => {
+    setRatio(
+      data.length !== 0
+        ? Math.round((data[0].value / (data[0].value + data[1].value)) * 100)
+        : 0
+    );
+  }, [data]);
 
   return (
     <ChartContainer type="small" loc="right">
